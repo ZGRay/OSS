@@ -42,74 +42,43 @@ public class DataBaseProvider<T> {
          * 从 db中获取表的版本 1 是否创建表 2校验数据库字段与类字段是否匹配。增加字段 or
          *
          */
-        checkTableVersionIsUpdate();
+        /**  过滤版本表的检查        （无用 -如果当前的表 为 版本表，则创建 or 更新）*/
+        if (!mTableInfo.mClazz.getName().equals(TableVersion.class.getName())) {
+            checkTableVersionIsUpdate();
+        }
     }
 
     private void checkTableVersionIsUpdate() {
-        /**如果当前的表 为 版本表，则创建 or 更新*/
-        if (mTableInfo.mClazz.getName().equals(TableVersion.class.getName())) {
-            managerVersionTable((DataBaseProvider<TableVersion>) this);
-            return;
-        }
         DataBaseProvider<TableVersion> dbProvider = DataBaseProvider.getDbProvider(TableVersion.class);
         managerVersionTable(dbProvider);
     }
 
-    private void managerVersionTable(DataBaseProvider<TableVersion> dataBaseProvider) {
+    public void managerVersionTable(DataBaseProvider<TableVersion> dataBaseProvider) {
 
         TableVersion appVersion = OrmUtils.getAppVertion(Gapplication.getInstance());
-        if (tabIsExist(mDb, mTableInfo.mTableName)) {
-            //表存在
-            TableVersion tableVer = dataBaseProvider.get(mTableInfo.mTableName);
-            ///表存在，就会有版本号。 如果没有，记录此异常
-            if (tableVer == null) {
-                Log.v(TAG, "表存在，但没有版本记录，创建表，插入版本号有异常");
-//                updateTable(mDb);
-                appVersion.tableName = mTableInfo.mTableName;
-                dataBaseProvider.insert(appVersion);
-            } else {
-                if (tableVer.versionCode != appVersion.versionCode) {
-                    updateTable(mDb);
-                    appVersion.tableName = mTableInfo.mTableName;
-                    dataBaseProvider.update(appVersion);
-                }
-            }
-
-        } else {
-            createTable(mDb);
+        TableVersion tableVersion = dataBaseProvider.get(mTableInfo.mTableName);
+        if (tableVersion == null) {
+            createTable();
             // 更新表的版本
             appVersion.tableName = mTableInfo.mTableName;
             dataBaseProvider.insert(appVersion);
+        } else {
+            if (tableVersion.versionCode != appVersion.versionCode) {
+                updateTable(mDb);
+                appVersion.tableName = mTableInfo.mTableName;
+                dataBaseProvider.update(appVersion);
+            }
         }
-
-
-        // 获取 table的版本，为空，表未创建。
-//        if (tableVer == null ) {
-//            createTableOrUpdate(mDb);
-//            // 更新表的版本
-//            appVersion.tableName = mTableInfo.mTableName;
-//            dataBaseProvider.insertOrUpdate(appVersion);
-//        } else {
-//            // table的版本 不为空，与 app的版本对比， 不相等。 跟新表。
-//            if (tableVer.versionCode != appVersion.versionCode) {
-//                createTableOrUpdate(mDb);
-//                // 更新表的版本
-//                appVersion.tableName = mTableInfo.mTableName;
-//                dataBaseProvider.insertOrUpdate(appVersion);
-//            }
-//            // 无需跟新
-//        }
-
     }
 
-    private void createTable(SQLiteDatabase db) {
+    public void createTable() {
         String sql = SqlBuilder.getCreateTableSql(mTableInfo);
-        db.execSQL(sql);
+        mDb.execSQL(sql);
     }
 
     private void updateTable(SQLiteDatabase db) {
         // TODO Auto-generated method stub
-        String sql = SqlBuilder.getTableColumnsSql(mTableInfo);
+        String sql = SqlBuilder.getAllSql(mTableInfo);
         Cursor cursor = db.rawQuery(sql, null);
         ArrayList<PropertyInfo> tempInfos = new ArrayList<PropertyInfo>();
         int i;
@@ -173,25 +142,40 @@ public class DataBaseProvider<T> {
         return false;
     }
 
-    public void insert(T t) {
+    public long insert(T t) {
+        long i = -1;
         if (checkParams(t, "insert")) {
             mDb.beginTransaction();
             try {
                 /** 添加类数据到数据库 */
-                mDb.insert(mTableInfo.mTableName, mTableInfo.mPropertyInfos.get(0).columnName, toContentValues(t));
-                /** 如果类中有 其他类的引用，添加其他类的数据到数据库中， */
-                executeOne2OneAction(t, mTableInfo.mOne2OneInfos, INSERT, "");
-                executeOne2ManyAction(t, mTableInfo.mOne2Manies, INSERT, "");
+                i = mDb.insert(mTableInfo.mTableName, mTableInfo.mPropertyInfos.get(0).columnName, toContentValues(t));
+                if (i != -1) {
+                    /** 如果类中有 其他类的引用，添加其他类的数据到数据库中， */
+                    executeOne2OneAction(t, mTableInfo.mOne2OneInfos, INSERT, "");
+                    executeOne2ManyAction(t, mTableInfo.mOne2Manies, INSERT, "");
+                } else {
+                    return i;
+                }
+
                 mDb.setTransactionSuccessful();
             } catch (Exception e) {
                 // TODO: handle exception
                 e.printStackTrace();
+                return -1;
             } finally {
                 mDb.endTransaction();
             }
         }
 
 
+        return i;
+    }
+
+    private void insertReferiendTable(T t) {
+        mDb.insert(mTableInfo.mTableName, mTableInfo.mPropertyInfos.get(0).columnName, toContentValues(t));
+        /** 如果类中有 其他类的引用，添加其他类的数据到数据库中， */
+        executeOne2OneAction(t, mTableInfo.mOne2OneInfos, INSERT, "");
+        executeOne2ManyAction(t, mTableInfo.mOne2Manies, INSERT, "");
     }
 
     public void insert(List<T> list) {
@@ -242,12 +226,13 @@ public class DataBaseProvider<T> {
 
     /**
      * 根据主键删除id
+     *
      * @param idValue
      */
-    public void deleteById(Object idValue) {
-        if (idValue == null){
+    public void delete(Object idValue) {
+        if (idValue == null) {
             Log.v(TAG, String.format("%s method has a null parameter.", "deleteById"));
-        }else{
+        } else {
             int affectRow = mDb.delete(mTableInfo.mTableName, SqlBuilder.getWhereClause(mTableInfo.mPrimaryKey.columnName), new String[]{idValue.toString()});
             if (affectRow > 0) {
                 executeOne2OneAction(null, mTableInfo.mOne2OneInfos, DELETE, idValue.toString());
@@ -256,15 +241,19 @@ public class DataBaseProvider<T> {
         }
     }
 
-    public void deleteAll() {
+    /**
+     * 根据条件删除数据, 条件为空的时候 将会删除所有的数据
+     *
+     * @param whereClause
+     * @param whereArgs
+     */
+    public void delete(String whereClause, String[] whereArgs) {
         mDb.beginTransaction();
         Cursor cursor = null;
         try {
             if (mTableInfo.mOne2OneInfos.size() > 0 || mTableInfo.mOne2Manies.size() > 0) {
-
                 String primaryColumn = mTableInfo.mPrimaryKey.columnName;
-                cursor = mDb.query(mTableInfo.mTableName, new String[]{primaryColumn}, "", new String[0], "", "", "");
-
+                cursor = mDb.query(mTableInfo.mTableName, new String[]{primaryColumn}, whereClause, whereArgs, "", "", "");
                 if (cursor != null) {
                     while (cursor.moveToNext()) {
                         String columnValue = cursor.getString(cursor.getColumnIndex(primaryColumn));
@@ -273,18 +262,23 @@ public class DataBaseProvider<T> {
                     }
                 }
             }
-            mDb.delete(mTableInfo.mTableName, null, new String[0]);
+            mDb.delete(mTableInfo.mTableName, whereClause, whereArgs);
             mDb.setTransactionSuccessful();
         } catch (Exception e) {
-            // TODO: handle exception
             e.printStackTrace();
         } finally {
             if (cursor != null) {
                 cursor.close();
             }
             mDb.endTransaction();
-
         }
+    }
+
+    /**
+     * 删除所有数据
+     */
+    public void deleteAll() {
+        delete("", new String[0]);
     }
 
     /**
@@ -322,15 +316,33 @@ public class DataBaseProvider<T> {
 
     }
 
-    public int update(T t) {
+    /**
+     * 更新数据 （主键ID必须不能为空）
+     *
+     * @param entity
+     * @return
+     */
+    public int update(T entity) {
+        return update(entity, SqlBuilder.getWhereClause(mTableInfo.mPrimaryKey.columnName), new String[]{getPrimrayKeyValue(mTableInfo.mPrimaryKey, entity).toString()});
+    }
+
+    /**
+     * 根据条件更新数据（条件为空的时候，将会更新所有的数据）
+     *
+     * @param entity
+     * @param whereClause
+     * @param whereArgs
+     * @return
+     */
+    public int update(T entity, String whereClause, String[] whereArgs) {
         int i = 0;
-        if (checkParams(t, "update")) {
+        if (checkParams(entity, "update")) {
             mDb.beginTransaction();
             try {
-                i = mDb.update(mTableInfo.mTableName, toContentValues(t), SqlBuilder.getWhereClause(mTableInfo.mPrimaryKey.columnName), new String[]{getPrimrayKeyValue(mTableInfo.mPrimaryKey, t).toString()});
+                i = mDb.update(mTableInfo.mTableName, toContentValues(entity), whereClause, whereArgs);
                 if (i > 0) {
-                    executeOne2OneAction(t, mTableInfo.mOne2OneInfos, UPDATE, "");
-                    executeOne2ManyAction(t, mTableInfo.mOne2Manies, UPDATE, "");
+                    executeOne2OneAction(entity, mTableInfo.mOne2OneInfos, UPDATE, "");
+                    executeOne2ManyAction(entity, mTableInfo.mOne2Manies, UPDATE, "");
                 }
 
                 mDb.setTransactionSuccessful();
@@ -354,13 +366,56 @@ public class DataBaseProvider<T> {
 
     }
 
+    /**
+     * 根据主键查找所有关联的数据
+     *
+     * @param idValue
+     * @return
+     */
     public T get(Object idValue) {
+        return get(idValue, 0);
+    }
+
+    /**
+     * 根据主键查找，同时所有查找“一对一”的数据
+     *
+     * @param idValue
+     * @return
+     */
+    public T getWithOne2One(Object idValue) {
+        return get(idValue, 1);
+    }
+
+    /**
+     * 根据主键查找，同时所有查找“一对多”的数据
+     *
+     * @param idValue
+     * @return
+     */
+    public T getWithOne2Many(Object idValue) {
+        return get(idValue, 2);
+    }
+    /**
+     * 根据主键查找，过滤一对多，一对一的数据
+     *
+     * @param idValue
+     * @return
+     */
+    public T getWithNone(Object idValue) {
+        return get(idValue, 3);
+    }
+
+    /**
+     * @param idValue
+     * @return
+     */
+    private T get(Object idValue, int action) {
         Cursor cursor = null;
         try {
             SqlValue sqlValue = SqlBuilder.getFindSqlById(mTableInfo, idValue);
             cursor = mDb.rawQuery(sqlValue.sql, sqlValue.getBindArgsAsStringArray());
             if (cursor != null && cursor.moveToFirst()) {
-                return convertCorToObj(cursor);
+                return convertCorToObj(cursor, action);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -371,6 +426,24 @@ public class DataBaseProvider<T> {
         }
 
         return null;
+    }
+
+
+    public List<T> getAll() {
+        Cursor cursor = null;
+        List<T> result = new ArrayList<T>();
+        try {
+            String sql = SqlBuilder.getAllSql(mTableInfo);
+            cursor = mDb.rawQuery(sql, new String[0]);
+            result = readObjectFromCursor(cursor);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return result;
     }
 
     private T getOen2ManyData(T result) {
@@ -416,7 +489,7 @@ public class DataBaseProvider<T> {
         try {
             cursor = mDb.rawQuery(sqlValue.sql, sqlValue.getBindArgsAsStringArray());
             if (cursor != null && cursor.moveToFirst()) {
-                return convertCorToObj(cursor);
+                return convertCorToObj(cursor,0);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -429,7 +502,7 @@ public class DataBaseProvider<T> {
         return null;
     }
 
-    private T convertCorToObj(Cursor cursor) {
+    private T convertCorToObj(Cursor cursor, int action) {
         try {
             T result = mClass.newInstance();
             ArrayList<PropertyInfo> propertyInfos = mTableInfo.mPropertyInfos;
@@ -461,8 +534,16 @@ public class DataBaseProvider<T> {
             } else if (primaryKeyInfo.dataType == TableInfo.MFT_BOOLEAN) {
                 primaryKeyInfo.field.setBoolean(result, Boolean.parseBoolean(cursor.getString(cursor.getColumnIndex(primaryKeyInfo.columnName))));
             }
-            result = getOen2OneData(result);
-            result = getOen2ManyData(result);
+            if (action == 0) {
+                result = getOen2OneData(result);
+                result = getOen2ManyData(result);
+            } else if (action == 1) {
+                result = getOen2OneData(result);
+            } else if (action == 2) {
+                result = getOen2ManyData(result);
+            } else if (action ==3){
+            }
+
             return result;
         } catch (Exception e) {
             e.printStackTrace();
@@ -492,7 +573,7 @@ public class DataBaseProvider<T> {
         List<T> result = new ArrayList<T>();
         if (cursor != null && cursor.moveToFirst()) {
             do {
-                T t = convertCorToObj(cursor);
+                T t = convertCorToObj(cursor,0);
                 result.add(t);
             } while (cursor.moveToNext());
         }
@@ -509,7 +590,7 @@ public class DataBaseProvider<T> {
 
     private static final Map<Class, DataBaseProvider> modelProviders = new HashMap<Class, DataBaseProvider>();
 
-    public static <T> DataBaseProvider<T> getDbProvider(Class<T> clazz) {
+    public static synchronized <T> DataBaseProvider<T> getDbProvider(Class<T> clazz) {
         DataBaseProvider<T> provider = modelProviders.get(clazz);
         if (provider == null) {
             provider = new DataBaseProvider<T>(clazz);
@@ -602,7 +683,7 @@ public class DataBaseProvider<T> {
                             Object object = iterator.next();
                             switch (action) {
                                 case INSERT:
-                                    o2mDbPro.insert((T) object);
+                                    o2mDbPro.insertReferiendTable((T) object);
                                     break;
                                 case UPDATE:
                                     o2mDbPro.updateReferendTable((T) object);
@@ -641,7 +722,7 @@ public class DataBaseProvider<T> {
                             one2OneInfo.field.setAccessible(true);
                             Object iobj = one2OneInfo.field.get(t);
                             if (iobj != null) {
-                                o2oDbPro.insert((T) iobj);
+                                o2oDbPro.insertReferiendTable((T) iobj);
                             }
                             break;
                         case DELETE:

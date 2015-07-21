@@ -31,7 +31,7 @@ public class SqlBuilder {
         return builder.toString();
     }
 
-    public static String getTableColumnsSql(TableInfo tableInfo) {
+    public static String getAllSql(TableInfo tableInfo) {
         // TODO Auto-generated method stub
 
         return "select * from " + tableInfo.mTableName;
@@ -72,12 +72,6 @@ public class SqlBuilder {
         return sqlValue;
     }
 
-    public static String getSelectColumnSql(String mTableName, String columnName) {
-        return "select " + columnName + " from " + mTableName;
-    }
 
 
-    public static String getSelectColumnWhereCauseSql(String mTableName, String primaryColumn) {
-        return null;
-    }
 }

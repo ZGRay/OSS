@@ -2,7 +2,9 @@ package com.example.orm;
 
 import com.oss.common.db.anotation.Id;
 
-public class House {
+import java.io.Serializable;
+
+public class House implements Serializable {
 	public String tName ="王老师";
 	@Id
 	public String name ="别墅";

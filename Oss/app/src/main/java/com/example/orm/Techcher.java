@@ -1,12 +1,13 @@
 package com.example.orm;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import com.oss.common.db.anotation.Id;
 import com.oss.common.db.anotation.One2Many;
 import com.oss.common.db.anotation.One2One;
 
-public class Techcher {
+public class Techcher implements Serializable {
 	@Id
 	public String name = "dddd";
 	public int age = 22;

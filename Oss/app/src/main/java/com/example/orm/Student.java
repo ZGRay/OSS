@@ -2,7 +2,9 @@ package com.example.orm;
 
 import com.oss.common.db.anotation.Id;
 
-public class Student {
+import java.io.Serializable;
+
+public class Student  implements Serializable {
 	public String tName ="王老师";
 	@Id
 	public String name ="zhangsan";

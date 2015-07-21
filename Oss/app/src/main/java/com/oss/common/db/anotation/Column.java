@@ -1,3 +1,7 @@
+/*
+ * @author 张雷
+ * V 1.0.0
+ */
 package com.oss.common.db.anotation;
 
 import java.lang.annotation.ElementType;

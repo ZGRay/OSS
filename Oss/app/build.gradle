@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 22
+    compileSdkVersion 21
     buildToolsVersion "21.1.2"
 
     defaultConfig {
         applicationId "com.orm.demo"
         minSdkVersion 15
-        targetSdkVersion 22
+        targetSdkVersion 21
         versionCode 1
         versionName "1.0"
     }
@@ -17,6 +17,23 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+//    def modules = ['fjsrc']
+//    def get_dirs = {
+//        type ->
+//            def dirs = []
+//            modules.each {
+//                dirs << it + type
+//            }
+//            dirs
+//    }
+    sourceSets{
+        main{
+//            java.srcDirs = get_dirs('/com/alibaba')
+            java.srcDirs = ['fjsrc','src/main/java']
+        }
+    }
+
+
 }
 
 dependencies {

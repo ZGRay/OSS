@@ -28,5 +28,25 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="0"/>
+    <Button
+        android:id="@+id/btn6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="cunxccc"/>
+    <Button
+        android:id="@+id/btn7"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="quqqqq"/>
+    <Button
+        android:id="@+id/btn8"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="xuliehua"/>
+    <Button
+        android:id="@+id/btn9"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="fanxuliehua"/>
 
 </LinearLayout>
