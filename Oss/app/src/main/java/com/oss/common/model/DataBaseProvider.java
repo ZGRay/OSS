@@ -141,7 +141,6 @@ public class DataBaseProvider<T> {
 
         return false;
     }
-
     public long insert(T t) {
         long i = -1;
         if (checkParams(t, "insert")) {
@@ -752,4 +751,5 @@ public class DataBaseProvider<T> {
             }
         }
     }
+
 }

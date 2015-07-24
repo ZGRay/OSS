@@ -32,21 +32,31 @@
         android:id="@+id/btn6"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="cunxccc"/>
+        android:text="普通存储"/>
     <Button
         android:id="@+id/btn7"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="quqqqq"/>
+        android:text="普通取"/>
     <Button
         android:id="@+id/btn8"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="xuliehua"/>
+        android:text="序列化存"/>
     <Button
         android:id="@+id/btn9"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="fanxuliehua"/>
+        android:text="序列化去"/>
+    <Button
+        android:id="@+id/btn10"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="xmlcun"/>
+    <Button
+        android:id="@+id/btn11"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="xmlqu"/>
 
 </LinearLayout>
