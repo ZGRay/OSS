@@ -81,7 +81,7 @@ public class FileStorage implements IStorage {
     }
 
     @Override
-    public void initialize() {
+    public synchronized void initialize() {
         if (!mRootDirectory.exists()) {
             if (!mRootDirectory.mkdirs()) {
                 DiskCacheLog.e("Unable to create cache dir %s", mRootDirectory.getAbsolutePath());
@@ -119,7 +119,7 @@ public class FileStorage implements IStorage {
 
 
     @Override
-    public void putString(String key, String value) {
+    public synchronized void putString(String key, String value) {
         File file = getFileForKey(key);
         try {
             writeCacheHeader(key, value.getBytes("UTF-8"), file);
@@ -131,7 +131,7 @@ public class FileStorage implements IStorage {
     }
 
     @Override
-    public void putBytes(String key, byte[] value) {
+    public synchronized void putBytes(String key, byte[] value) {
         File file = getFileForKey(key);
         try {
             writeCacheHeader(key, value, file);
@@ -143,7 +143,7 @@ public class FileStorage implements IStorage {
     }
 
     @Override
-    public void putShort(String key, short value) {
+    public synchronized void putShort(String key, short value) {
         File file = getFileForKey(key);
         try {
             byte[] b = short2B(value);
@@ -156,7 +156,7 @@ public class FileStorage implements IStorage {
     }
 
     @Override
-    public void putInt(String key, int value) {
+    public synchronized void putInt(String key, int value) {
         File file = getFileForKey(key);
         try {
             byte[] b = int2B(value);
@@ -169,7 +169,7 @@ public class FileStorage implements IStorage {
     }
 
     @Override
-    public void putLong(String key, long value) {
+    public synchronized void putLong(String key, long value) {
         File file = getFileForKey(key);
         try {
             byte[] b = long2B(value);
@@ -182,7 +182,7 @@ public class FileStorage implements IStorage {
     }
 
     @Override
-    public void putFloat(String key, float value) {
+    public synchronized void putFloat(String key, float value) {
         File file = getFileForKey(key);
         try {
             byte[] b = int2B(Float.floatToIntBits(value));
@@ -195,7 +195,7 @@ public class FileStorage implements IStorage {
     }
 
     @Override
-    public void putDouble(String key, double value) {
+    public synchronized void putDouble(String key, double value) {
         File file = getFileForKey(key);
         try {
             byte[] b = long2B(Double.doubleToLongBits(value));
@@ -208,7 +208,7 @@ public class FileStorage implements IStorage {
     }
 
     @Override
-    public void putBoolean(String key, boolean value) {
+    public synchronized void putBoolean(String key, boolean value) {
         File file = getFileForKey(key);
         try {
             byte[] b = value ? new byte[]{1} : new byte[]{0};
@@ -221,7 +221,7 @@ public class FileStorage implements IStorage {
     }
 
     @Override
-    public void putSerializable(String key, Serializable entry) {
+    public synchronized void putSerializable(String key, Serializable entry) {
         File file = getFileForKey(key);
         try {
             byte[] b = objectToByte(entry);
@@ -235,7 +235,7 @@ public class FileStorage implements IStorage {
     }
 
     @Override
-    public String getString(String key, String defaultValue) {
+    public synchronized String getString(String key, String defaultValue) {
         byte[] bytes = readData(key);
         if (bytes != null && bytes.length > 0) {
             try {
@@ -248,7 +248,7 @@ public class FileStorage implements IStorage {
     }
 
     @Override
-    public byte[] getBytes(String key, byte[] defaultValue) {
+    public synchronized byte[] getBytes(String key, byte[] defaultValue) {
         byte[] bytes = readData(key);
         if (bytes == null || bytes.length == 0) {
             return defaultValue;
@@ -257,7 +257,7 @@ public class FileStorage implements IStorage {
     }
 
     @Override
-    public short getShort(String key, short defaultValue) {
+    public synchronized short getShort(String key, short defaultValue) {
         byte[] bytes = readData(key);
         if (bytes == null || bytes.length == 0) {
             return defaultValue;
@@ -266,7 +266,7 @@ public class FileStorage implements IStorage {
     }
 
     @Override
-    public int getInt(String key, int defaultValue) {
+    public synchronized int getInt(String key, int defaultValue) {
         byte[] bytes = readData(key);
         if (bytes == null || bytes.length == 0) {
             return defaultValue;
@@ -275,7 +275,7 @@ public class FileStorage implements IStorage {
     }
 
     @Override
-    public long getLong(String key, long defaultValue) {
+    public synchronized long getLong(String key, long defaultValue) {
         byte[] bytes = readData(key);
         if (bytes == null || bytes.length == 0) {
             return defaultValue;
@@ -284,7 +284,7 @@ public class FileStorage implements IStorage {
     }
 
     @Override
-    public float getFloat(String key, float defaultValue) {
+    public synchronized float getFloat(String key, float defaultValue) {
         byte[] bytes = readData(key);
         if (bytes == null || bytes.length == 0) {
             return defaultValue;
@@ -293,7 +293,7 @@ public class FileStorage implements IStorage {
     }
 
     @Override
-    public double getDouble(String key, double defaultValue) {
+    public synchronized double getDouble(String key, double defaultValue) {
         byte[] bytes = readData(key);
         if (bytes == null || bytes.length == 0) {
             return defaultValue;
@@ -302,7 +302,7 @@ public class FileStorage implements IStorage {
     }
 
     @Override
-    public boolean getBoolean(String key, boolean defaultValue) {
+    public synchronized boolean getBoolean(String key, boolean defaultValue) {
         byte[] bytes = readData(key);
         if (bytes == null || bytes.length == 0) {
             return defaultValue;
@@ -311,7 +311,7 @@ public class FileStorage implements IStorage {
     }
 
     @Override
-    public <T extends Serializable> T getSerializable(String key, T defaultValue) {
+    public synchronized <T extends Serializable> T getSerializable(String key, T defaultValue) {
         FileStorage.CacheHeader entry = mEntries.get(key);
         // if the entry does not exist, return.
         if (entry == null) {
@@ -335,7 +335,7 @@ public class FileStorage implements IStorage {
     }
 
     @Override
-    public void remove(String key) {
+    public synchronized void remove(String key) {
         boolean deleted = getFileForKey(key).delete();
         removeEntry(key);
         if (!deleted) {
@@ -345,7 +345,7 @@ public class FileStorage implements IStorage {
     }
 
     @Override
-    public void clear() {
+    public synchronized void clear() {
         File[] files = mRootDirectory.listFiles();
         if (files != null) {
             for (File file : files) {
@@ -357,7 +357,7 @@ public class FileStorage implements IStorage {
         DiskCacheLog.d("Cache cleared.");
     }
 
-    protected void writeCacheHeader(String key, byte[] value, File file) throws IOException {
+    protected  void writeCacheHeader(String key, byte[] value, File file) throws IOException {
         //调整缓存
         pruneIfNeeded(value.length);
 
