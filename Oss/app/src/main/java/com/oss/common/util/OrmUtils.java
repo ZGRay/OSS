@@ -12,11 +12,11 @@ import com.oss.common.db.anotation.Id;
 import com.oss.common.db.anotation.Many2One;
 import com.oss.common.db.anotation.One2Many;
 import com.oss.common.db.anotation.One2One;
-import com.oss.common.db.anotation.Table;
 import com.oss.common.db.anotation.Transient;
 import com.oss.common.db.table.Many2OneInfo;
 import com.oss.common.db.table.One2ManyInfo;
 import com.oss.common.db.table.One2OneInfo;
+import com.oss.common.db.table.One2OneLazyLoader;
 import com.oss.common.db.table.TableInfo;
 import com.oss.common.db.table.TableVersion;
 import com.oss.common.exception.DbException;
@@ -160,8 +160,15 @@ public class OrmUtils {
 			oneInfo.referencedColumnName = OrmUtils.getColumnName(field);
 			oneInfo.field = field;
 			oneInfo.fieldName = field.getName();
-			oneInfo.dataClassTYpe = field.getType();
-			oneInfo.oneClass = field.getType();
+			if (field.getType() == One2OneLazyLoader.class){
+				Class<?> clazz = (Class<?>)((ParameterizedType)field.getGenericType()).getActualTypeArguments()[1];
+				if (clazz != null){
+					oneInfo.oneClass = clazz;
+				}
+			}else {
+				oneInfo.oneClass = field.getType();
+			}
+			oneInfo.dataClassType = field.getType();
 			one2OneInfos.add(oneInfo);
 			return true;
 		}
@@ -176,7 +183,7 @@ public class OrmUtils {
 			m2oInfo.referencedColumnName = OrmUtils.getColumnName(field);
 			m2oInfo.field = field;
 			m2oInfo.fieldName = field.getName();
-			m2oInfo.dataClassTYpe = field.getType();
+			m2oInfo.dataClassType = field.getType();
 			m2oInfo.oneClass = field.getType();
 			many2OneInfos.add(m2oInfo);
 			return true;
@@ -193,7 +200,7 @@ public class OrmUtils {
 			oInfo.referencedColumnName = OrmUtils.getColumnName(field);
 			oInfo.fieldName = fieldName;
 			oInfo.field = field;
-			oInfo.dataClassTYpe = field.getType();
+			oInfo.dataClassType = field.getType();
 			/**
 			 * 返回一个 Type 对象，它表示此 Field 对象所表示字段的声明类型。 如果 Type 是一个参数化类型，则返回的 Type
 			 * 对象必须准确地反映源代码中使用的    实际类型参数。
@@ -202,13 +209,13 @@ public class OrmUtils {
 			/**是否是参数化类型， List<T>   map<t,t>*/
 			if (type instanceof ParameterizedType) {
 				ParameterizedType pType = (ParameterizedType) type;
-				
 				if (pType.getActualTypeArguments().length == 1) {
 					Class<?> clazz= (Class<?>) pType.getActualTypeArguments()[0];
 					if (clazz != null) {
 						oInfo.manyClass = clazz;
 					}
 				}else{
+					//如果类型参数为2则认为是LazyLoader
 					Class<?> clazz= (Class<?>) pType.getActualTypeArguments()[1];
 					if (clazz != null) {
 						oInfo.manyClass = clazz;

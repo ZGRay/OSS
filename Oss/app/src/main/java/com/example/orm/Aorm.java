@@ -81,7 +81,7 @@ public class Aorm extends Activity {
                 // TODO Auto-generated method stub
                 long time = System.currentTimeMillis();
                 DataBaseProvider<Techcher> db = DataBaseProvider.getDbProvider(Techcher.class);
-                Techcher t = db.get("AT");
+                Techcher t = db.getWithAll("AT");
                 long done = System.currentTimeMillis();
                 System.out.println("t = " + (done - time));
                 System.out.println("t = " + t);

@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.oss.common.db.table.One2ManyInfo;
+import com.oss.common.db.table.One2ManyLazyLoader;
 import com.oss.common.db.table.One2OneInfo;
+import com.oss.common.db.table.One2OneLazyLoader;
 import com.oss.common.db.table.PrimaryKeyInfo;
 import com.oss.common.db.table.PropertyInfo;
 import com.oss.common.db.table.TableInfo;
@@ -141,6 +143,7 @@ public class DataBaseProvider<T> {
 
         return false;
     }
+
     public long insert(T t) {
         long i = -1;
         if (checkParams(t, "insert")) {
@@ -366,17 +369,17 @@ public class DataBaseProvider<T> {
     }
 
     /**
-     * 根据主键查找所有关联的数据
+     * 根据主键查找数据(默认不获取，一对一，一对多的数据)
      *
      * @param idValue
      * @return
      */
     public T get(Object idValue) {
-        return get(idValue, 0);
+        return get(idValue, 3);
     }
 
     /**
-     * 根据主键查找，同时所有查找“一对一”的数据
+     * 根据主键查找，同时所有查找“一对一”的数据,不查找一对多的数据
      *
      * @param idValue
      * @return
@@ -386,7 +389,7 @@ public class DataBaseProvider<T> {
     }
 
     /**
-     * 根据主键查找，同时所有查找“一对多”的数据
+     * 根据主键查找，同时所有查找“一对多”的数据，不查找一对一的数据
      *
      * @param idValue
      * @return
@@ -394,14 +397,15 @@ public class DataBaseProvider<T> {
     public T getWithOne2Many(Object idValue) {
         return get(idValue, 2);
     }
+
     /**
-     * 根据主键查找，过滤一对多，一对一的数据
+     * 根据主键查找，并获取一对多，一对一的数据
      *
      * @param idValue
      * @return
      */
-    public T getWithNone(Object idValue) {
-        return get(idValue, 3);
+    public T getWithAll(Object idValue) {
+        return get(idValue, 0);
     }
 
     /**
@@ -445,18 +449,34 @@ public class DataBaseProvider<T> {
         return result;
     }
 
-    private T getOen2ManyData(T result) {
+    private T getOen2ManyData(T result, int action) {
         try {
             ArrayList<One2ManyInfo> o2mList = mTableInfo.mOne2Manies;
             if (o2mList.size() > 0) {
+                One2ManyLazyLoader lazyLoader;
                 Object id = getPrimrayKeyValue(mTableInfo.mPrimaryKey, result);
                 for (One2ManyInfo one2ManyInfo : o2mList) {
                     DataBaseProvider<T> o2mDbPro = (DataBaseProvider<T>) DataBaseProvider.getDbProvider(one2ManyInfo.manyClass);
-                    List<T> list = o2mDbPro.getListByForeignkey(one2ManyInfo.referencedColumnName, id);
-                    if (list != null) {
+                    if (one2ManyInfo.dataClassType == One2ManyLazyLoader.class) {
+                        lazyLoader = new One2ManyLazyLoader(id, one2ManyInfo, o2mDbPro);
+                        if (action == 0 || action == 2) {
+                            List<T> list = o2mDbPro.getListByForeignkey(one2ManyInfo.referencedColumnName, id);
+                            lazyLoader.setManys(list);
+                        }
                         one2ManyInfo.field.setAccessible(true);
-                        one2ManyInfo.field.set(result, list);
+                        one2ManyInfo.field.set(result, lazyLoader);
+                    } else {
+                        if (action == 0 || action == 2) {
+                            List<T> list = o2mDbPro.getListByForeignkey(one2ManyInfo.referencedColumnName, id);
+                            if (list != null) {
+                                one2ManyInfo.field.setAccessible(true);
+                                one2ManyInfo.field.set(result, list);
+                            }
+
+                        }
                     }
+
+
                 }
             }
         } catch (IllegalAccessException e) {
@@ -465,15 +485,31 @@ public class DataBaseProvider<T> {
         return result;
     }
 
-    private T getOen2OneData(T primaryData) {
+    private T getOen2OneData(T primaryData, int action) {
         try {
             ArrayList<One2OneInfo> o2oList = mTableInfo.mOne2OneInfos;
             if (o2oList.size() > 0) {
                 Object id = getPrimrayKeyValue(mTableInfo.mPrimaryKey, primaryData);
+                One2OneLazyLoader lazyLoader;
                 for (One2OneInfo one2OneInfo : o2oList) {
                     DataBaseProvider<T> o2oDb = (DataBaseProvider<T>) DataBaseProvider.getDbProvider(one2OneInfo.oneClass);
-                    T foreignResult = o2oDb.getByForeignKey(one2OneInfo.referencedColumnName, id);
-                    one2OneInfo.field.set(primaryData, foreignResult);
+                    if (one2OneInfo.dataClassType == One2OneLazyLoader.class) {
+                        lazyLoader = new One2OneLazyLoader(id, one2OneInfo, o2oDb);
+                        if (action == 0 || action == 1) {
+                            T foreignResult = o2oDb.getByForeignKey(one2OneInfo.referencedColumnName, id);
+                            lazyLoader.setForeignEntity(foreignResult);
+                        }
+                        one2OneInfo.field.setAccessible(true);
+                        one2OneInfo.field.set(primaryData, lazyLoader);
+                    } else {
+                        if (action == 0 || action == 1) {
+                            T foreignResult = o2oDb.getByForeignKey(one2OneInfo.referencedColumnName, id);
+                            one2OneInfo.field.setAccessible(true);
+                            one2OneInfo.field.set(primaryData, foreignResult);
+                        }
+                    }
+
+
                 }
             }
         } catch (IllegalAccessException e) {
@@ -482,13 +518,13 @@ public class DataBaseProvider<T> {
         return primaryData;
     }
 
-    private T getByForeignKey(String referencedColumnName, Object id) {
+    public T getByForeignKey(String referencedColumnName, Object id) {
         Cursor cursor = null;
         SqlValue sqlValue = SqlBuilder.getFindSql(mTableInfo.mTableName, referencedColumnName, id);
         try {
             cursor = mDb.rawQuery(sqlValue.sql, sqlValue.getBindArgsAsStringArray());
             if (cursor != null && cursor.moveToFirst()) {
-                return convertCorToObj(cursor,0);
+                return convertCorToObj(cursor, 0);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -533,15 +569,17 @@ public class DataBaseProvider<T> {
             } else if (primaryKeyInfo.dataType == TableInfo.MFT_BOOLEAN) {
                 primaryKeyInfo.field.setBoolean(result, Boolean.parseBoolean(cursor.getString(cursor.getColumnIndex(primaryKeyInfo.columnName))));
             }
-            if (action == 0) {
-                result = getOen2OneData(result);
-                result = getOen2ManyData(result);
-            } else if (action == 1) {
-                result = getOen2OneData(result);
-            } else if (action == 2) {
-                result = getOen2ManyData(result);
-            } else if (action ==3){
+            for (One2OneInfo one2OneInfo : mTableInfo.mOne2OneInfos) {
+
             }
+            for (One2ManyInfo one2ManyInfo : mTableInfo.mOne2Manies) {
+                if (one2ManyInfo.dataClassType == One2ManyLazyLoader.class) {
+
+                }
+            }
+            result = getOen2OneData(result, action);
+            result = getOen2ManyData(result, action);
+
 
             return result;
         } catch (Exception e) {
@@ -550,7 +588,7 @@ public class DataBaseProvider<T> {
         return null;
     }
 
-    private List<T> getListByForeignkey(String foreignKey, Object foreignKeyValue) {
+    public List<T> getListByForeignkey(String foreignKey, Object foreignKeyValue) {
         Cursor cursor = null;
         List<T> result = new ArrayList<T>();
         try {
@@ -572,7 +610,7 @@ public class DataBaseProvider<T> {
         List<T> result = new ArrayList<T>();
         if (cursor != null && cursor.moveToFirst()) {
             do {
-                T t = convertCorToObj(cursor,0);
+                T t = convertCorToObj(cursor, 0);
                 result.add(t);
             } while (cursor.moveToNext());
         }

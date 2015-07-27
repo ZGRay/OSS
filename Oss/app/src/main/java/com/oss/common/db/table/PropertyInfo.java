@@ -13,7 +13,7 @@ public class PropertyInfo {
 	public String fieldName;
 	public String columnName;
 	public String dataType;
-	public Class<?> dataClassTYpe;
+	public Class<?> dataClassType;
 	public Method setter;
 	public Method getter;
 	
