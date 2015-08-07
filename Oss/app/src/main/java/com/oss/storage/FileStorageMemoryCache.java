@@ -17,7 +17,7 @@ import java.io.UnsupportedEncodingException;
  *         create at 2015/7/23 16:52
  */
 public class FileStorageMemoryCache implements IStorage {
-    private static final String TAG = "memcahce";
+    private static final String TAG = "FileStorageMemoryCache";
     private LruCache<String, byte[]> mMemoryCache;
     // Default memory cache size in kilobytes
     private static final int DEFAULT_MEM_CACHE_SIZE = 1024 * 1024 * 1; // 1MB
@@ -275,6 +275,7 @@ public class FileStorageMemoryCache implements IStorage {
     @Override
     public boolean getBoolean(String key, boolean defaultValue) {
         byte[] bytes = mMemoryCache.get(key);
+
         if (bytes == null || bytes.length == 0) {
              bytes = fileStorage.readData(key);
             if (bytes == null || bytes.length == 0) {
@@ -310,9 +311,9 @@ public class FileStorageMemoryCache implements IStorage {
     }
 
     @Override
-    public void clear() {
+    public void clearAll() {
         mMemoryCache.evictAll();
-        fileStorage.clear();
+        fileStorage.clearAll();
     }
 
     public byte[] objectToByte(java.lang.Object obj) {

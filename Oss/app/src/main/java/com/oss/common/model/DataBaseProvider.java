@@ -569,14 +569,6 @@ public class DataBaseProvider<T> {
             } else if (primaryKeyInfo.dataType == TableInfo.MFT_BOOLEAN) {
                 primaryKeyInfo.field.setBoolean(result, Boolean.parseBoolean(cursor.getString(cursor.getColumnIndex(primaryKeyInfo.columnName))));
             }
-            for (One2OneInfo one2OneInfo : mTableInfo.mOne2OneInfos) {
-
-            }
-            for (One2ManyInfo one2ManyInfo : mTableInfo.mOne2Manies) {
-                if (one2ManyInfo.dataClassType == One2ManyLazyLoader.class) {
-
-                }
-            }
             result = getOen2OneData(result, action);
             result = getOen2ManyData(result, action);
 

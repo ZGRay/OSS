@@ -1,14 +1,7 @@
 package com.oss.storage;
 
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.os.Build;
-import android.os.Environment;
 import android.os.SystemClock;
-import android.support.v4.util.LruCache;
 import android.util.Log;
-
-import com.oss.common.util.Utils;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -33,7 +26,7 @@ import java.util.Map;
  * @author Layen.ZH
  *         create at 2015/7/22 18:00
  */
-class FileStorage implements IStorage {
+public class FilteTest implements IStorage {
     private static final String TAG = "FileStorage";
     /**
      * Map of the Key, CacheHeader pairs
@@ -70,18 +63,18 @@ class FileStorage implements IStorage {
      */
     static final int CACHE_MAGIC = 0x20150306;
 
-    FileStorage(File rootDirectory, int maxCacheSizeInBytes) {
+    public FilteTest(File rootDirectory, int maxCacheSizeInBytes) {
         mRootDirectory = rootDirectory;
         mMaxCacheSizeInBytes = maxCacheSizeInBytes;
     }
 
 
-    FileStorage(File rootDirectory) {
+    public FilteTest(File rootDirectory) {
         this(rootDirectory, DEFAULT_DISK_USAGE_BYTES);
     }
 
     @Override
-    public void initialize() {
+    public synchronized void initialize() {
         if (!mRootDirectory.exists()) {
             if (!mRootDirectory.mkdirs()) {
                 DiskCacheLog.e("Unable to create cache dir %s", mRootDirectory.getAbsolutePath());
@@ -119,7 +112,7 @@ class FileStorage implements IStorage {
 
 
     @Override
-    public void putString(String key, String value) {
+    public synchronized void putString(String key, String value) {
         File file = getFileForKey(key);
         try {
             writeCacheHeader(key, value.getBytes("UTF-8"), file);
@@ -131,7 +124,7 @@ class FileStorage implements IStorage {
     }
 
     @Override
-    public void putBytes(String key, byte[] value) {
+    public synchronized void putBytes(String key, byte[] value) {
         File file = getFileForKey(key);
         try {
             writeCacheHeader(key, value, file);
@@ -143,7 +136,7 @@ class FileStorage implements IStorage {
     }
 
     @Override
-    public void putShort(String key, short value) {
+    public synchronized void putShort(String key, short value) {
         File file = getFileForKey(key);
         try {
             byte[] b = short2B(value);
@@ -156,7 +149,7 @@ class FileStorage implements IStorage {
     }
 
     @Override
-    public void putInt(String key, int value) {
+    public synchronized void putInt(String key, int value) {
         File file = getFileForKey(key);
         try {
             byte[] b = int2B(value);
@@ -169,7 +162,7 @@ class FileStorage implements IStorage {
     }
 
     @Override
-    public void putLong(String key, long value) {
+    public synchronized void putLong(String key, long value) {
         File file = getFileForKey(key);
         try {
             byte[] b = long2B(value);
@@ -182,7 +175,7 @@ class FileStorage implements IStorage {
     }
 
     @Override
-    public void putFloat(String key, float value) {
+    public synchronized void putFloat(String key, float value) {
         File file = getFileForKey(key);
         try {
             byte[] b = int2B(Float.floatToIntBits(value));
@@ -195,7 +188,7 @@ class FileStorage implements IStorage {
     }
 
     @Override
-    public void putDouble(String key, double value) {
+    public synchronized void putDouble(String key, double value) {
         File file = getFileForKey(key);
         try {
             byte[] b = long2B(Double.doubleToLongBits(value));
@@ -208,7 +201,7 @@ class FileStorage implements IStorage {
     }
 
     @Override
-    public void putBoolean(String key, boolean value) {
+    public synchronized void putBoolean(String key, boolean value) {
         File file = getFileForKey(key);
         try {
             byte[] b = value ? new byte[]{1} : new byte[]{0};
@@ -221,7 +214,7 @@ class FileStorage implements IStorage {
     }
 
     @Override
-    public void putSerializable(String key, Serializable entry) {
+    public synchronized void putSerializable(String key, Serializable entry) {
         File file = getFileForKey(key);
         try {
             byte[] b = objectToByte(entry);
@@ -235,7 +228,7 @@ class FileStorage implements IStorage {
     }
 
     @Override
-    public String getString(String key, String defaultValue) {
+    public synchronized String getString(String key, String defaultValue) {
         byte[] bytes = readData(key);
         if (bytes != null && bytes.length > 0) {
             try {
@@ -248,7 +241,7 @@ class FileStorage implements IStorage {
     }
 
     @Override
-    public byte[] getBytes(String key, byte[] defaultValue) {
+    public synchronized byte[] getBytes(String key, byte[] defaultValue) {
         byte[] bytes = readData(key);
         if (bytes == null || bytes.length == 0) {
             return defaultValue;
@@ -257,7 +250,7 @@ class FileStorage implements IStorage {
     }
 
     @Override
-    public short getShort(String key, short defaultValue) {
+    public synchronized short getShort(String key, short defaultValue) {
         byte[] bytes = readData(key);
         if (bytes == null || bytes.length == 0) {
             return defaultValue;
@@ -266,7 +259,7 @@ class FileStorage implements IStorage {
     }
 
     @Override
-    public int getInt(String key, int defaultValue) {
+    public synchronized int getInt(String key, int defaultValue) {
         byte[] bytes = readData(key);
         if (bytes == null || bytes.length == 0) {
             return defaultValue;
@@ -275,7 +268,7 @@ class FileStorage implements IStorage {
     }
 
     @Override
-    public long getLong(String key, long defaultValue) {
+    public synchronized long getLong(String key, long defaultValue) {
         byte[] bytes = readData(key);
         if (bytes == null || bytes.length == 0) {
             return defaultValue;
@@ -284,7 +277,7 @@ class FileStorage implements IStorage {
     }
 
     @Override
-    public float getFloat(String key, float defaultValue) {
+    public synchronized float getFloat(String key, float defaultValue) {
         byte[] bytes = readData(key);
         if (bytes == null || bytes.length == 0) {
             return defaultValue;
@@ -293,7 +286,7 @@ class FileStorage implements IStorage {
     }
 
     @Override
-    public double getDouble(String key, double defaultValue) {
+    public synchronized double getDouble(String key, double defaultValue) {
         byte[] bytes = readData(key);
         if (bytes == null || bytes.length == 0) {
             return defaultValue;
@@ -302,7 +295,7 @@ class FileStorage implements IStorage {
     }
 
     @Override
-    public boolean getBoolean(String key, boolean defaultValue) {
+    public synchronized boolean getBoolean(String key, boolean defaultValue) {
         byte[] bytes = readData(key);
         if (bytes == null || bytes.length == 0) {
             return defaultValue;
@@ -311,36 +304,16 @@ class FileStorage implements IStorage {
     }
 
     @Override
-    public <T extends Serializable> T getSerializable(String key, T defaultValue) {
+    public synchronized <T extends Serializable> T getSerializable(String key, T defaultValue) {
         byte[] bytes = readData(key);
         if (bytes == null || bytes.length == 0) {
             return defaultValue;
         }
         return (T) byteToObject(bytes);
-//        FileStorage.CacheHeader entry = mEntries.get(key);
-//        // if the entry does not exist, return.
-//        if (entry == null) {
-//            return defaultValue;
-//        }
-//        Object obj;
-//        File file = getFileForKey(key);
-//        try {
-//            FileInputStream fis = new FileInputStream(file);   //获得输入流
-//            ObjectInputStream ois = new ObjectInputStream(fis);
-//            CacheHeader.readHeader(ois);
-//            obj = ois.readObject();
-//            ois.close();
-//            fis.close();
-//            return (T) obj;
-//        } catch (Exception e) {
-//            DiskCacheLog.d("%s: %s", file.getAbsolutePath(), e.toString());
-//            remove(key);
-//            return defaultValue;
-//        }
     }
 
     @Override
-    public void remove(String key) {
+    public synchronized void remove(String key) {
         boolean deleted = getFileForKey(key).delete();
         removeEntry(key);
         if (!deleted) {
@@ -350,7 +323,7 @@ class FileStorage implements IStorage {
     }
 
     @Override
-    public void clearAll() {
+    public synchronized void clearAll() {
         File[] files = mRootDirectory.listFiles();
         if (files != null) {
             for (File file : files) {
@@ -362,12 +335,12 @@ class FileStorage implements IStorage {
         DiskCacheLog.d("Cache cleared.");
     }
 
-    protected void writeCacheHeader(String key, byte[] value, File file) throws IOException {
+    protected  void writeCacheHeader(String key, byte[] value, File file) throws IOException {
         //调整缓存
         pruneIfNeeded(value.length);
 
         FileOutputStream fos = new FileOutputStream(file);
-        FileStorage.CacheHeader e = new FileStorage.CacheHeader(key, value.length);
+        FilteTest.CacheHeader e = new FilteTest.CacheHeader(key, value.length);
         boolean success = e.writeHeader(fos);
         if (!success) {
             fos.close();
@@ -381,7 +354,7 @@ class FileStorage implements IStorage {
     }
 
     protected byte[] readData(String key) {
-        FileStorage.CacheHeader entry = mEntries.get(key);
+        FilteTest.CacheHeader entry = mEntries.get(key);
         // if the entry does not exist, return.
         if (entry == null) {
             return null;
@@ -498,7 +471,7 @@ class FileStorage implements IStorage {
         if (pos != length) {
             throw new IOException("Expected " + length + " bytes, read " + pos + " bytes");
         }
-        Log.d(TAG, "disk  hit");
+//        Log.d(TAG, "disk  hit");
         return bytes;
     }
 
@@ -688,8 +661,8 @@ class FileStorage implements IStorage {
     }
 
     static byte[] long2B(long value) {
-        return new byte[]{(byte) value, (byte) (value >>> 8), (byte) (value >>> 16), (byte) (value >>> 24),
-                (byte) (value >>> 32), (byte) (value >>> 40), (byte) (value >>> 48), (byte) (value >>> 56)};
+        return new byte[]{(byte) value , (byte) (value >>> 8), (byte) (value >>> 16), (byte) (value >>> 24),
+                (byte) (value >>> 32), (byte) (value >>> 40) , (byte) (value >>>48) , (byte) (value >>> 56) };
     }
 
     static short b2Short(byte[] bytes) {
@@ -713,7 +686,7 @@ class FileStorage implements IStorage {
     static long b2Long(byte[] bytes) {
         long num = 0L;
         for (int i = 0; i < 8; i++) {
-            num |= ((bytes[i] & 0xFFL) << (i * 8));
+            num |= ((bytes[i]& 0xFFL)<< (i * 8));
 
         }
         return num;

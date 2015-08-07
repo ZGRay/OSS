@@ -25,9 +25,9 @@ public interface IStorage {
     float getFloat(String key, float defaultValue);
     double getDouble(String key,double defaultValue);
     boolean getBoolean(String key,boolean defaultValue);
-    <T extends Serializable> Object getSerializable(String key,T defaultValue);
+    <T extends Serializable> T getSerializable(String key,T defaultValue);
 
     void remove(String key);
 
-    void clear();
+    void clearAll();
 }
