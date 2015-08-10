@@ -11,7 +11,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class EfficientLruCache implements IStorage {
+ class EfficientLruCache implements IStorage {
     private final LinkedHashMap<String, Object> map;
     private FileStorage fileStorage;
     private int size;
@@ -614,6 +614,13 @@ public class EfficientLruCache implements IStorage {
      */
     @Override
     public void remove(String key) {
+        removeCache(key);
+        removeDisk(key);
+
+
+    }
+
+    public void removeCache(String key) {
         if (key == null) {
             throw new NullPointerException("key == null");
         }
@@ -630,9 +637,7 @@ public class EfficientLruCache implements IStorage {
             w.unlock();
         }
 
-
     }
-
     public void removeDisk(String key) {
         if (key == null) {
             throw new NullPointerException("key == null");
@@ -648,7 +653,7 @@ public class EfficientLruCache implements IStorage {
 
     @Override
     public void clearAll() {
-        evictAll();
+        clearCache();
     }
 
     public void clearDisk() {
@@ -683,7 +688,7 @@ public class EfficientLruCache implements IStorage {
     /**
      * Clear the cache, calling {@link #} on each removed entry.
      */
-    public final void evictAll() {
+    public final void clearCache() {
         trimToSize(-1); // -1 will evict 0-sized elements
     }
 

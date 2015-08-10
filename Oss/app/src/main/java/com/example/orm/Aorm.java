@@ -8,7 +8,7 @@ import com.example.orm.item.ValidOrderListResult;
 import com.orm.demo.R;
 import com.oss.common.model.DataBaseProvider;
 import com.oss.storage.FileStorageMemoryCache;
-import com.oss.storage.FileStorageMemche;
+import com.oss.storage.HighSynFileStorageMemche;
 import com.oss.storage.FilteTest;
 import com.oss.storage.HighSynFileStorage;
 
@@ -34,7 +34,7 @@ public class Aorm extends Activity {
     private Button btn10;
     private Button btn11;
     FileStorageMemoryCache cache;
-    FileStorageMemche cache1;
+    HighSynFileStorageMemche cache1;
     HighSynFileStorage hi;
     FilteTest hf;
     @Override
@@ -48,7 +48,7 @@ public class Aorm extends Activity {
         File cacheDir2 = new File(getCacheDir(), "wwe");
         File cacheDir3 = new File(getCacheDir(), "www");
         cache = new FileStorageMemoryCache(cacheDir);
-        cache1 = new FileStorageMemche(cacheDir1);
+        cache1 = new HighSynFileStorageMemche(cacheDir1);
         hi = new HighSynFileStorage(cacheDir2);
         hf = new FilteTest(cacheDir3);
         hf.initialize();

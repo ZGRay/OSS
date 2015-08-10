@@ -7,7 +7,7 @@ import java.io.Serializable;
  * @author Layen.ZH
  *         create at 2015/7/23 16:52
  */
-public class FileStorageMemche implements IStorage {
+public class HighSynFileStorageMemche implements IStorage {
     private static final String TAG = "FileStorageMemche";
     EfficientLruCache mMemoryCache;
     // Default memory cache size in kilobytes
@@ -15,24 +15,24 @@ public class FileStorageMemche implements IStorage {
     public int maxMemCacheSize;
     private FileStorage fileStorage;
 
-    public FileStorageMemche(File rootDirectory, int maxMemCacheSize, int maxCacheSizeInBytes) {
+    public HighSynFileStorageMemche(File rootDirectory, int maxMemCacheSize, int maxCacheSizeInBytes) {
         this.maxMemCacheSize = maxMemCacheSize;
         fileStorage = new FileStorage(rootDirectory, maxCacheSizeInBytes);
         initialize();
     }
 
-    public FileStorageMemche(File rootDirectory, int maxMemCacheSize) {
+    public HighSynFileStorageMemche(File rootDirectory, int maxMemCacheSize) {
         this.maxMemCacheSize = maxMemCacheSize;
         fileStorage = new FileStorage(rootDirectory);
         initialize();
     }
 
-    public FileStorageMemche(File rootDirectory) {
+    public HighSynFileStorageMemche(File rootDirectory) {
         this(rootDirectory, DEFAULT_MEM_CACHE_SIZE);
     }
 
     private void initMemoryCache() {
-        mMemoryCache = new EfficientLruCache(DEFAULT_MEM_CACHE_SIZE,fileStorage);
+        mMemoryCache = new EfficientLruCache(maxMemCacheSize,fileStorage);
     }
 
     @Override
@@ -147,12 +147,14 @@ public class FileStorageMemche implements IStorage {
 
     @Override
     public void clearAll() {
+        mMemoryCache.clearCache();
+        mMemoryCache.clearDisk();
     }
     public void clearCache() {
-        mMemoryCache.evictAll();
+        mMemoryCache.clearCache();
     }
     public void clearDisk() {
-        mMemoryCache.clearAll();
+        mMemoryCache.clearDisk();
     }
 
 
