@@ -30,8 +30,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * @author Layen.ZH
+ * @author Lei.Zhang
  *         create at 2015/7/22 18:00
+ *
  */
 class FileStorage implements IStorage {
     private static final String TAG = "FileStorage";

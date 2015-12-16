@@ -15,6 +15,7 @@ import java.io.UnsupportedEncodingException;
 /**
  * @author Layen.ZH
  *         create at 2015/7/23 16:52
+ *         为同步不推荐使用，建议使用HFileStoragMemChe
  */
 public class FileStorageMemoryCache implements IStorage {
     private static final String TAG = "FileStorageMemoryCache";
@@ -24,12 +25,23 @@ public class FileStorageMemoryCache implements IStorage {
     public int maxMemCacheSize;
     private FileStorage fileStorage;
 
+    /**
+     *
+     * @param rootDirectory  本地缓存目录
+     * @param maxMemCacheSize 内存缓存大小
+     * @param maxCacheSizeInBytes
+     */
     public FileStorageMemoryCache(File rootDirectory, int maxMemCacheSize, int maxCacheSizeInBytes) {
         this.maxMemCacheSize = maxMemCacheSize;
         fileStorage = new FileStorage(rootDirectory, maxCacheSizeInBytes);
         initialize();
     }
 
+    /**
+     *
+     * @param rootDirectory 本地缓存目录
+     * @param maxMemCacheSize 内存缓存大小
+     */
     public FileStorageMemoryCache(File rootDirectory, int maxMemCacheSize) {
         this.maxMemCacheSize = maxMemCacheSize;
         fileStorage = new FileStorage(rootDirectory);

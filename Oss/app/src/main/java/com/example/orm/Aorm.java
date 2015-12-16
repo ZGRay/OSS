@@ -8,9 +8,8 @@ import com.example.orm.item.ValidOrderListResult;
 import com.orm.demo.R;
 import com.oss.common.model.DataBaseProvider;
 import com.oss.storage.FileStorageMemoryCache;
-import com.oss.storage.HighSynFileStorageMemche;
-import com.oss.storage.FilteTest;
-import com.oss.storage.HighSynFileStorage;
+import com.oss.storage.HFileStorageMemche;
+import com.oss.storage.HFileStorage;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -34,9 +33,8 @@ public class Aorm extends Activity {
     private Button btn10;
     private Button btn11;
     FileStorageMemoryCache cache;
-    HighSynFileStorageMemche cache1;
-    HighSynFileStorage hi;
-    FilteTest hf;
+    HFileStorageMemche cache1;
+    HFileStorage hi;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // TODO Auto-generated method stub
@@ -48,10 +46,8 @@ public class Aorm extends Activity {
         File cacheDir2 = new File(getCacheDir(), "wwe");
         File cacheDir3 = new File(getCacheDir(), "www");
         cache = new FileStorageMemoryCache(cacheDir);
-        cache1 = new HighSynFileStorageMemche(cacheDir1);
-        hi = new HighSynFileStorage(cacheDir2);
-        hf = new FilteTest(cacheDir3);
-        hf.initialize();
+        cache1 = new HFileStorageMemche(cacheDir1);
+        hi = new HFileStorage(cacheDir2);
 //        cache1.initialize();
         btn1 = (Button) this.findViewById(R.id.btn1);
         btn2 = (Button) this.findViewById(R.id.btn2);
