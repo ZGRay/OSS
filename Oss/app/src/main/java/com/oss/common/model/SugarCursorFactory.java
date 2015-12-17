@@ -7,6 +7,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQuery;
 import android.util.Log;
 
+/**
+ * @author Lei.Zhang
+ * @email marvylei@aliyun.com
+ * Created by Lei.Zhang on 2015/7/21.
+ */
 public class SugarCursorFactory implements SQLiteDatabase.CursorFactory {
 
 	private boolean debugEnabled;

@@ -4,8 +4,9 @@ package com.oss.common.db.table;
 import com.oss.common.model.DataBaseProvider;
 
 /**
- * @author Layen.ZH
- *         create at 2015/7/27 11:41
+ * @author Lei.Zhang
+ * @email marvylei@aliyun.com
+ * Created by Lei.Zhang on 2015/7/23.
  * @param <O> 一对一主表
  * @param <T> 一对一 关联的表
  */

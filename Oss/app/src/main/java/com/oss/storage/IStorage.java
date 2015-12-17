@@ -3,8 +3,9 @@ package com.oss.storage;
 import java.io.Serializable;
 
 /**
- * @author Layen.ZH
- *         create at 2015/7/22 17:27
+ * @author Lei.Zhang
+ * @email marvylei@aliyun.com
+ * Created by Lei.Zhang on 2015/7/25.
  */
 public interface IStorage {
     void initialize();

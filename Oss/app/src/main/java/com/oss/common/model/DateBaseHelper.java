@@ -11,6 +11,11 @@ import com.oss.common.util.Gapplication;
 import com.oss.common.util.OrmUtils;
 import com.oss.common.util.SqlBuilder;
 
+/**
+ * * @author Lei.Zhang
+ * @email marvylei@aliyun.com
+ * Created by Lei.Zhang on 2015/7/21.
+ */
 public class DateBaseHelper extends SQLiteOpenHelper {
     private SQLiteDatabase mDefaultWritableDatabase = null;
     public DateBaseHelper(Context context) {

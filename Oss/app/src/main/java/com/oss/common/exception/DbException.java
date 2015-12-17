@@ -1,5 +1,10 @@
 package com.oss.common.exception;
 
+/**
+ * @author Lei.Zhang
+ * @email marvylei@aliyun.com
+ * Created by Lei.Zhang on 2015/7/21.
+ */
 public class DbException extends RuntimeException {
 
 	/**

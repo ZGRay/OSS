@@ -5,6 +5,11 @@ import com.oss.common.db.table.PropertyInfo;
 import com.oss.common.db.table.TableInfo;
 import com.oss.common.model.SqlValue;
 
+/**
+ * @author Lei.Zhang
+ * @email marvylei@aliyun.com
+ * Created by Lei.Zhang on 2015/7/21.
+ */
 public class SqlBuilder {
     private static final String SELECT_SQL = "SELECT * FROM %s WHERE %s = ? ";
     private static final String SELECT_SQL_WHERE = "SELECT * FROM %s WHERE %s ;";

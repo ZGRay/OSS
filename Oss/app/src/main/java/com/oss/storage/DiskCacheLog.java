@@ -21,8 +21,9 @@ import android.util.Log;
 import java.util.Locale;
 
 /**
- * @author Layen
- *         create at 2015/7/22 12:09
+ * @author Lei.Zhang
+ * @email marvylei@aliyun.com
+ * Created by Lei.Zhang on 2015/7/25.
  * Logging helper class.
  */
 public class DiskCacheLog {

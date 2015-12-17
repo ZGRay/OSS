@@ -26,6 +26,11 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.text.TextUtils;
 
+/**
+ * @author Lei.Zhang
+ * @email marvylei@aliyun.com
+ * Created by Lei.Zhang on 2015/7/21.
+ */
 public class OrmUtils {
 	/**
 	 * 转换类名为表名

@@ -4,8 +4,9 @@ import java.io.File;
 import java.io.Serializable;
 
 /**
- * @author Layen.ZH
- *         create at 2015/7/23 16:52
+ * @author Lei.Zhang
+ * @email marvylei@aliyun.com
+ * Created by Lei.Zhang on 2015/7/25.
  */
 public class HFileStorageMemche implements IStorage {
     private static final String TAG = "FileStorageMemche";

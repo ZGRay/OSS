@@ -9,8 +9,9 @@ import android.os.StatFs;
 import java.io.File;
 
 /**
- * @author Layen.ZH
- *         create at 2015/7/23 15:02
+ * @author Lei.Zhang
+ * @email marvylei@aliyun.com
+ * Created by Lei.Zhang on 2015/7/21.
  */
 public class FileUtils {
     /**

@@ -1,7 +1,9 @@
 package com.oss.storage;
 
 /**
- * Created by sunby.zhang on 2015/7/21.
+ * @author Lei.Zhang
+ * @email marvylei@aliyun.com
+ * Created by Lei.Zhang on 2015/7/25.
  */
 public class StorageUtil {
     private static StorageUtil storageUtil = null;

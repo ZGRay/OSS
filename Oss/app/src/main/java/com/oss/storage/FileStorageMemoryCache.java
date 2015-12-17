@@ -13,8 +13,9 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 
 /**
- * @author Layen.ZH
- *         create at 2015/7/23 16:52
+ * @author Lei.Zhang
+ * @email marvylei@aliyun.com
+ * Created by Lei.Zhang on 2015/7/25.
  *         为同步不推荐使用，建议使用HFileStoragMemChe
  */
 public class FileStorageMemoryCache implements IStorage {

@@ -7,8 +7,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * 使用读写锁，高校读取
- * @author Layen.ZH
- *         create at 2015/8/6 14:31
+ * @author Lei.Zhang
+ * @email marvylei@aliyun.com
+ * Created by Lei.Zhang on 2015/7/25.
  */
 public class HFileStorage implements IStorage {
     private FileStorage fileStorage;

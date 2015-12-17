@@ -24,7 +24,8 @@ import java.util.Map;
 
 /**
  * @author Lei.Zhang
- *         create at 2015/7/22 18:00
+ * @email marvylei@aliyun.com
+ * Created by Lei.Zhang on 2015/7/25.
  *
  */
 class FileStorage implements IStorage {

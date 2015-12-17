@@ -6,8 +6,9 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 
 /**
- * @author Layen.ZH
- *         create at 2015/7/23 15:14
+ * @author Lei.Zhang
+ * @email marvylei@aliyun.com
+ * Created by Lei.Zhang on 2015/7/21.
  */
 public class ImageUtils {
     /**

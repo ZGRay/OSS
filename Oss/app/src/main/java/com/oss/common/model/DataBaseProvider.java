@@ -26,6 +26,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 import android.util.Log;
 
+/**
+ * @author Lei.Zhang
+ * @email marvylei@aliyun.com
+ * Created by Lei.Zhang on 2015/7/21.
+ * @param <T>
+ */
 public class DataBaseProvider<T> {
     public static final int INSERT = 1;
     public static final int DELETE = 2;

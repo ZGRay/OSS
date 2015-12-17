@@ -15,8 +15,10 @@ import com.oss.common.util.OrmUtils;
 
 /**
  * class反射类文件。可以把它当为一个类。包含了类字段，与数据库字段的绑定。只是通过反射的方式生成的。
- * 
- * @author sundy.zhang
+ *
+ * @author Lei.Zhang
+ * @email marvylei@aliyun.com
+ * Created by Lei.Zhang on 2015/7/21.
  *
  */
 public class TableInfo {

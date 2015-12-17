@@ -6,8 +6,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 /**
  * 标记主键
- * @author sunby.zhang
- *
+ * @author Lei.Zhang
+ * @email marvylei@aliyun.com
+ * Created by Lei.Zhang on 2015/7/21.
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

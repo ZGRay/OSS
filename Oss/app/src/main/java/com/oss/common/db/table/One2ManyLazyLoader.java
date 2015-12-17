@@ -6,8 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Layen.ZH
- *         create at 2015/7/27 11:41
+ * @author Lei.Zhang
+ * @email marvylei@aliyun.com
+ * Created by Lei.Zhang on 2015/7/21.
  */
 public class One2ManyLazyLoader<O,M> {
     private O oneEntity;

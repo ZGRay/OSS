@@ -4,7 +4,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 /**
  * 类字段 绑定。field. columnName,getter ,setter
- * @author sunby.zhang
+ * @author Lei.Zhang
+ * @email marvylei@aliyun.com
+ * Created by Lei.Zhang on 2015/7/21.
  *
  */
 public class PropertyInfo {

@@ -11,6 +11,11 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+/**
+ * @author Lei.Zhang
+ * @email marvylei@aliyun.com
+ * Created by Lei.Zhang on 2015/7/25.
+ */
  class EfficientLruCache implements IStorage {
     private final LinkedHashMap<String, Object> map;
     private FileStorage fileStorage;
