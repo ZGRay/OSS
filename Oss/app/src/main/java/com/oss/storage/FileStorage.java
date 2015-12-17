@@ -1,14 +1,7 @@
 package com.oss.storage;
 
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.os.Build;
-import android.os.Environment;
 import android.os.SystemClock;
-import android.support.v4.util.LruCache;
-import android.util.Log;
 
-import com.oss.common.util.Utils;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -499,7 +492,7 @@ class FileStorage implements IStorage {
         if (pos != length) {
             throw new IOException("Expected " + length + " bytes, read " + pos + " bytes");
         }
-        Log.d(TAG, "disk  hit");
+        DiskCacheLog.d(TAG, "disk  hit");
         return bytes;
     }
 
@@ -590,7 +583,7 @@ class FileStorage implements IStorage {
             DiskCacheLog.v("pruned %d files, %d bytes, %d ms",
                     prunedFiles, (mTotalSize - before), SystemClock.elapsedRealtime() - startTime);
         }
-        Log.d(TAG, "disk size = " + mTotalSize);
+        DiskCacheLog.d(TAG, "disk size = " + mTotalSize);
     }
 
     static class CacheHeader {
